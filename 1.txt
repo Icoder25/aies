@@ -1,0 +1,386 @@
+dependancy
+pip install nltk
+pip install matplotlib
+pip install opencv-python
+pip install lxml_html_clean
+pip install newspaper3k
+pip install --no-cache-dir opencv-python<5.0
+to run from terminal python(or python3) file.py
+
+//1
+
+from queue import PriorityQueue
+
+def read():
+    return [list(map(int, input().split())) for i in range(3)]
+
+
+def h(s, goal):
+    count = 0
+    for i in range(3):
+        for j in range(3):
+            if s[i][j] != 0 and s[i][j] != goal[i][j]:
+                count += 1
+    return count
+
+
+def astar(start, goal):
+    pq = PriorityQueue()
+    pq.put((h(start, goal), 0, start))
+    visited = []
+
+    while not pq.empty():
+        f, g, s = pq.get()
+
+        if s in visited:
+            continue
+        visited.append(s)
+
+        print("Visited State:")
+        for row in s:
+            print(row)
+        print("f =", f, "g =", g, "h =", h(s, goal))
+        print()
+
+        if s == goal:
+            print("Goal Reached!")
+            return
+
+        x, y = 0, 0
+        for i in range(3):
+            for j in range(3):
+                if s[i][j] == 0:
+                    x, y = i, j
+
+        moves = [(-1, 0), (1, 0), (0, -1), (0, 1)]
+
+        for dx, dy in moves:
+            nx = x + dx
+            ny = y + dy
+
+            if 0 <= nx < 3 and 0 <= ny < 3:
+                new = [row[:] for row in s]
+
+                new[x][y], new[nx][ny] = new[nx][ny], new[x][y]
+
+                if new not in visited:
+                    ng = g + 1
+                    nh = h(new, goal)
+                    pq.put((ng + nh, ng, new))
+
+    print("No Solution Found")
+
+
+print("Enter Initial State (0 = Blank):")
+start = read()
+
+print("Enter Goal State:")
+goal = read()
+
+astar(start, goal)
+
+//2
+
+
+def cost(path, graph):
+    total = 0
+    n = len(path)
+
+    for i in range(n):
+        total += graph[path[i]][path[(i + 1) % n]]
+
+    return total
+
+
+def hill_climbing(graph):
+    n = len(graph)
+    path = list(range(n))
+
+    while True:
+        best = path[:]
+
+        for i in range(1, n):
+            for j in range(i + 1, n):
+                new = path[:]
+                new[i], new[j] = new[j], new[i]
+
+                if cost(new, graph) < cost(best, graph):
+                    best = new
+
+        if best == path:
+            break
+
+        path = best
+
+    print("Best Path:", path + [path[0]])
+    print("Minimum Cost:", cost(path, graph))
+
+
+n = int(input("Enter number of cities: "))
+graph = []
+print("Enter Cost Matrix:")
+for i in range(n):
+    graph.append(list(map(int, input().split())))
+
+hill_climbing(graph)
+
+//3
+
+w1 = input("First word: ").upper()
+w2 = input("Second word: ").upper()
+w3 = input("Result word: ").upper()
+
+letters = list(set(w1 + w2 + w3))
+d = {}
+
+def num(w):
+    return int("".join(str(d[c]) for c in w))
+
+def solve(i):
+    if i == len(letters):
+        return num(w1) + num(w2) == num(w3)
+    for digit in range(10):
+        if digit in d.values():
+            continue
+        if digit == 0 and letters[i] in (w1[0], w2[0], w3[0]):
+            continue
+        d[letters[i]] = digit
+        if solve(i + 1):
+            return True
+        del d[letters[i]]
+    return False
+
+if len(letters) <= 10 and solve(0):
+    print(num(w1), "+", num(w2), "=", num(w3))
+else:
+    print("No solution")
+
+//4
+
+b = [" "] * 9
+
+def display():
+    for i in range(0, 9, 3):
+        print(b[i], "|", b[i+1], "|", b[i+2])
+        if i < 6:
+            print("---------")
+
+def win(p):
+    lines = [(0,1,2), (3,4,5), (6,7,8),
+             (0,3,6), (1,4,7), (2,5,8),
+             (0,4,8), (2,4,6)]
+
+    for a, c, d in lines:
+        if b[a] == b[c] == b[d] == p:
+            return True
+    return False
+
+def minimax(p):
+    if win("O"): return 1
+    if win("X"): return -1
+    if " " not in b: return 0
+
+    best = -2 if p == "O" else 2
+
+    for i in range(9):
+        if b[i] == " ":
+            b[i] = p
+
+            next_p = "X" if p == "O" else "O"
+            score = minimax(next_p)
+
+            b[i] = " "
+
+            if p == "O":
+                best = max(best, score)
+            else:
+                best = min(best, score)
+
+    return best
+
+
+while True:
+    display()
+    m = int(input("Your move (1-9): ")) - 1
+    b[m] = "X"
+
+    if win("X"):
+        display()
+        print("You win!")
+        break
+
+    if " " not in b:
+        display()
+        print("Draw!")
+        break
+
+    best, move = -2, -1
+
+    for i in range(9):
+        if b[i] == " ":
+            b[i] = "O"
+            score = minimax("X")
+            b[i] = " "
+
+            if score > best:
+                best, move = score, i
+
+    b[move] = "O"
+
+    if win("O"):
+        display()
+        print("Computer wins!")
+        break
+
+    if " " not in b:
+        display()
+        print("Draw!")
+        break
+
+//5
+
+# student(nayna).
+# student(harshad).
+
+# completed_12th(nayna).
+# completed_12th(harshad).
+
+# completed_credits(nayna).
+# completed_credits(harshad).
+
+# no_backlog(nayna).
+# no_backlog(harshad).
+
+# valid_grade(nayna).
+# valid_grade(harshad).
+
+# degree(nayna, engineering).
+# degree(harshad, bba).
+
+# eligible(X) :-
+#     student(X),
+#     completed_12th(X),
+#     completed_credits(X),
+#     no_backlog(X),
+#     valid_grade(X).
+
+
+# start:-
+#     write('Enter Student Name: '),
+#     read(X),
+#     write('Enter Course: '),
+#     read(D),
+    
+#     eligible(X),
+#     degree(X,D),
+    
+#     write('Student is Eligible for: '),
+#     write(D),
+#     nl.
+
+
+## 
+
+risk(low).
+risk(medium).
+risk(high).
+
+goal(safety).
+goal(growth).
+goal(income).
+
+recommend(low, safety, fixed_deposit).
+recommend(low, income, bonds).
+recommend(medium, growth, mutual_funds).
+recommend(medium, income, bonds).
+recommend(high, growth, stocks).
+recommend(high, income, dividend_stocks).
+
+start :-
+    write('Enter your risk level : '),
+    read(Risk),
+    
+    write('Enter your investment goal : '),
+    read(Goal),
+
+    recommend(Risk, Goal, Investment),
+
+    write('Recommended investment: '),
+    write(Investment),
+    nl.
+//6
+
+
+import nltk
+from newspaper import Article
+from nltk.tokenize import sent_tokenize, word_tokenize
+from nltk.corpus import stopwords
+
+nltk.download('punkt')
+nltk.download('punkt_tab')
+nltk.download('stopwords')
+
+# Get article
+article = Article('https://en.wikipedia.org/wiki/Influenza')
+article.download()
+article.parse()
+
+sentences = sent_tokenize(article.text)
+stop_words = set(stopwords.words('english'))
+
+# Find answer
+def get_answer(question):
+    q = set(word_tokenize(question.lower())) - stop_words
+    best, score = "", 0
+
+    for s in sentences:
+        words = set(word_tokenize(s.lower())) - stop_words
+        count = len(q & words)
+
+        if count > score:
+            best, score = s, count
+
+    return best
+
+# Chatbot
+print("Chatbot ready! Type bye to exit.")
+
+while True:
+    user = input("You: ").lower()
+
+    if user in ['bye', 'exit', 'quit']:
+        print("Bot: Goodbye!")
+        break
+
+    elif user in ['hi', 'hello', 'hey']:
+        print("Bot: Hello! Ask me about influenza.")
+
+    else:
+        answer = get_answer(user)
+        print("Bot:", answer if answer else "No answer found.")
+//7
+
+import cv2
+import matplotlib.pyplot as plt
+
+image = cv2.imread("2.png")
+faceCascade = cv2.CascadeClassifier("haarcascade_frontalface_default.xml")
+
+if image is None:
+    print("Error: Image not found!")
+    exit()
+
+gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+
+plt.imshow(cv2.cvtColor(image, cv2.COLOR_BGR2RGB))
+plt.show()
+
+faces = faceCascade.detectMultiScale(gray)
+
+print("Found {} faces!".format(len(faces)))
+
+for (x, y, w, h) in faces:
+    cv2.rectangle(image, (x, y), (x+w, y+h), (0, 255, 0), 2)
+
+plt.imshow(cv2.cvtColor(image, cv2.COLOR_BGR2RGB))
+plt.show()
